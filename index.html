@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>AcePay Pi – Hybrid Merchant & Payments Capture</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-card: #020617;
+      --border: #1f2937;
+      --border-soft: #111827;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --accent: #22c55e;
+      --accent-soft: #0f766e;
+      --danger: #ef4444;
+      --shadow: rgba(0,0,0,0.35);
+    }
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top left, #0f172a, #020617 50%, #020617);
+      color: var(--text);
+    }
+    header {
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(8px);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(2,6,23,0.95);
+    }
+    header h1 {
+      margin: 0;
+      font-size: 18px;
+      letter-spacing: 0.02em;
+    }
+    header p {
+      margin: 2px 0 0;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    header .meta {
+      text-align: right;
+      font-size: 11px;
+      color: var(--muted);
+    }
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 16px;
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      grid-gap: 16px;
+    }
+    @media (max-width: 900px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+    .card {
+      background: var(--bg-card);
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      padding: 16px 16px 18px;
+      box-shadow: 0 10px 30px var(--shadow);
+    }
+    .card h2 {
+      margin-top: 0;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 10px;
+      border: 1px solid #22c55e33;
+      background: rgba(15, 118, 110, 0.25);
+      color: #a7f3d0;
+    }
+    .muted {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    label {
+      display: block;
+      font-size: 12px;
+      margin-bottom: 2px;
+      color: var(--muted);
+    }
+    input, select, textarea {
+      width: 100%;
+      border-radius: 8px;
+      border: 1px solid var(--border-soft);
+      background: #020617;
+      color: var(--text);
+      padding: 7px 8px;
+      font-size: 12px;
+      font-family: inherit;
+      margin-bottom: 8px;
+    }
+    textarea {
+      min-height: 70px;
+      resize: vertical;
+    }
+    select {
+      cursor: pointer;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: 1px solid var(--accent-soft);
+      border-color: var(--accent-soft);
+    }
+    .row {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      grid-gap: 8px;
+    }
+    .row-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-gap: 8px;
+    }
+    @media (max-width: 640px) {
+      .row, .row-3 {
+        grid-template-columns: 1fr;
+      }
+    }
+    button {
+      border-radius: 999px;
+      border: none;
+      padding: 8px 14px;
+      font-size: 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 600;
+      margin-right: 6px;
+      margin-top: 4px;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #022c22;
+    }
+    .btn-secondary {
+      background: #0f172a;
+      border: 1px solid #374151;
+      color: var(--text);
+    }
+    .btn-ghost {
+      background: transparent;
+      border: 1px dashed #4b5563;
+      color: var(--muted);
+    }
+    .btn-danger {
+      background: var(--danger);
+      color: #fef2f2;
+    }
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .status {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 4px;
+      min-height: 16px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+      margin-top: 6px;
+    }
+    th, td {
+      padding: 4px 6px;
+      border-bottom: 1px solid var(--border-soft);
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      font-weight: 600;
+      color: var(--muted);
+      position: sticky;
+      top: 0;
+      background: #020617;
+      z-index: 1;
+    }
+    tbody tr:hover {
+      background: rgba(15,23,42,0.7);
+    }
+    .badge {
+      border-radius: 999px;
+      padding: 0 7px;
+      font-size: 10px;
+      display: inline-block;
+      border: 1px solid #4b5563;
+      color: var(--muted);
+    }
+    .badge.in {
+      border-color: #22c55e80;
+      color: #bbf7d0;
+    }
+    .badge.out {
+      border-color: #f9737380;
+      color: #fecaca;
+    }
+    .scroll {
+      max-height: 220px;
+      overflow: auto;
+      border-radius: 8px;
+      border: 1px solid var(--border-soft);
+    }
+    pre {
+      background: #020617;
+      border-radius: 8px;
+      border: 1px solid var(--border-soft);
+      padding: 8px;
+      font-size: 11px;
+      max-height: 260px;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      grid-gap: 8px;
+      margin-top: 8px;
+      font-size: 11px;
+    }
+    .summary-item {
+      padding: 8px;
+      border-radius: 10px;
+      border: 1px solid var(--border-soft);
+      background: #020617;
+    }
+    .summary-item strong {
+      display: block;
+      font-size: 11px;
+      margin-bottom: 3px;
+    }
+    .summary-item span {
+      font-size: 12px;
+    }
+    .tagline {
+      font-size: 10px;
+      margin-top: 6px;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>AcePay Pi</h1>
+      <p>Pi-first hybrid merchant & payments capture → feeds AcePi for accounting, tax & FX intelligence.</p>
+    </div>
+    <div class="meta">
+      Ace Consulting & Analytics (ACA) · AcePay Pi v1.0<br />
+      Feeds: AcePi → ACA Control Room → Ace Insights
+    </div>
+  </header>
+
+  <main>
+    <!-- LEFT: Business + Capture Form -->
+    <section class="card">
+      <h2>
+        1. Merchant Profile & Payments Capture
+        <span class="pill">Pi + Fiat + Web3 Rails</span>
+      </h2>
+      <p class="muted">
+        Set up your business profile once, then capture Pi, fiat and Web3 payments in a structured way.
+        The exported JSON will plug directly into AcePi.
+      </p>
+
+      <!-- Business profile -->
+      <h3 style="font-size:13px;margin-top:10px;">Business Profile</h3>
+      <div class="row">
+        <div>
+          <label for="bizName">Business Name</label>
+          <input id="bizName" placeholder="e.g. Ace Hybrid Retail & Web3 Hub" />
+        </div>
+        <div>
+          <label for="bizIndustry">Industry</label>
+          <input id="bizIndustry" placeholder="e.g. Retail & Digital Services" />
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label for="bizCountry">Base Country</label>
+          <input id="bizCountry" placeholder="e.g. Nigeria" />
+        </div>
+        <div>
+          <label for="baseCurrency">Base Currency</label>
+          <input id="baseCurrency" placeholder="e.g. NGN" />
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label for="defaultTaxCountry">Default Tax Country Code</label>
+          <input id="defaultTaxCountry" placeholder="e.g. NG" />
+        </div>
+        <div>
+          <label for="profilePreset">Quick Preset</label>
+          <select id="profilePreset">
+            <option value="">Select preset…</option>
+            <option value="ng-retail">Nigeria – Retail & Digital</option>
+            <option value="us-saas">US – SaaS / Info Products</option>
+            <option value="uk-consult">UK – Consulting / Advisory</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn-secondary" id="applyPresetBtn">Apply Preset</button>
+      <button class="btn-primary" id="saveProfileBtn">Save Profile</button>
+      <span class="status" id="profileStatus"></span>
+
+      <hr style="border:none;border-top:1px dashed #1f2937;margin:14px 0 10px;" />
+
+      <!-- Payment capture -->
+      <h3 style="font-size:13px;margin-top:0;">Capture Payment</h3>
+      <div class="row">
+        <div>
+          <label for="txDate">Date</label>
+          <input id="txDate" type="date" />
+        </div>
+        <div>
+          <label for="txDirection">Direction</label>
+          <select id="txDirection">
+            <option value="in">Inflow (money in)</option>
+            <option value="out">Outflow (money out)</option>
+          </select>
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label for="txAmount">Amount (base)</label>
+          <input id="txAmount" type="number" step="0.0001" placeholder="e.g. 350000" />
+        </div>
+        <div>
+          <label for="txCurrency">Currency</label>
+          <input id="txCurrency" placeholder="e.g. NGN, USD, PI, USDC" />
+        </div>
+      </div>
+      <label for="txDescription">Description</label>
+      <textarea id="txDescription" placeholder="e.g. Pi payment for in-store groceries, Binance USDT deposit, Amazon purchase…"></textarea>
+
+      <div class="row-3">
+        <div>
+          <label for="txChannel">Payment Channel</label>
+          <select id="txChannel">
+            <option value="">Select…</option>
+            <option value="pi">Pi Network</option>
+            <option value="bank_transfer">Bank Transfer</option>
+            <option value="card">Card / POS</option>
+            <option value="binance">Binance</option>
+            <option value="bybit">Bybit</option>
+            <option value="okx">OKX</option>
+            <option value="metamask">MetaMask</option>
+            <option value="ton">TON</option>
+            <option value="amazon">Amazon</option>
+            <option value="alibaba">Alibaba</option>
+            <option value="wix">Wix</option>
+            <option value="nvidia">NVIDIA</option>
+            <option value="investopedia">Investopedia</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div>
+          <label for="txChain">Chain (if on-chain)</label>
+          <select id="txChain">
+            <option value="">OFFCHAIN / N/A</option>
+            <option value="pi">Pi</option>
+            <option value="base">Base</option>
+            <option value="bsc">BSC</option>
+            <option value="eth">Ethereum</option>
+            <option value="ton">TON</option>
+          </select>
+        </div>
+        <div>
+          <label for="txTaxCountry">Tax Country Code</label>
+          <input id="txTaxCountry" placeholder="e.g. NG, US, UK" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label for="txCounterparty">Counterparty Type</label>
+          <select id="txCounterparty">
+            <option value="">Select…</option>
+            <option value="customer">Customer</option>
+            <option value="supplier">Supplier</option>
+            <option value="exchange">Exchange</option>
+            <option value="merchant">Merchant</option>
+            <option value="exam_body">Exam Body</option>
+            <option value="education_institution">Education Institution</option>
+            <option value="professional_body">Professional Body</option>
+            <option value="information_service">Information Service</option>
+            <option value="network">Network / Gas</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div>
+          <label for="txId">Transaction ID (optional)</label>
+          <input id="txId" placeholder="Leave blank to auto-generate" />
+        </div>
+      </div>
+
+      <details style="margin-top:4px;">
+        <summary class="muted" style="font-size:11px;cursor:pointer;">FX details (optional)</summary>
+        <div class="row">
+          <div>
+            <label for="fxCurrency">FX Currency</label>
+            <input id="fxCurrency" placeholder="e.g. USD, GBP, USDT, PI" />
+          </div>
+          <div>
+            <label for="fxAmount">FX Amount</label>
+            <input id="fxAmount" type="number" step="0.0001" placeholder="e.g. 1000" />
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label for="fxRate">FX Rate → Base</label>
+            <input id="fxRate" type="number" step="0.000001" placeholder="e.g. 1500 (NGN per USD)" />
+          </div>
+          <div>
+            <label for="fxFee">FX Fee (base)</label>
+            <input id="fxFee" type="number" step="0.01" placeholder="e.g. 5000" />
+          </div>
+        </div>
+      </details>
+
+      <div style="margin-top:8px;">
+        <button class="btn-primary" id="addTxBtn">➕ Add Payment</button>
+        <button class="btn-secondary" id="clearTxFormBtn">Clear Form</button>
+        <button class="btn-ghost" id="loadSampleTxBtn">Load Sample Transactions</button>
+      </div>
+      <span class="status" id="txStatus"></span>
+
+      <p class="tagline">
+        AcePay Pi is a capture layer. AcePi remains the core accounting & tax intelligence engine.
+      </p>
+    </section>
+
+    <!-- RIGHT: Transactions + Export -->
+    <section class="card">
+      <h2>
+        2. Session Ledger & AcePi Export
+        <span class="pill">Feeds AcePi / ACA / Ace Insights</span>
+      </h2>
+      <p class="muted">
+        Every captured payment becomes a structured transaction. Export as an AcePi-ready payload,
+        then paste or upload into AcePi, ACA Control Room or Ace Insights.
+      </p>
+
+      <!-- Summary -->
+      <div class="summary-grid" id="summaryGrid">
+        <div class="summary-item">
+          <strong>Transactions</strong>
+          <span id="sumTxCount">0</span>
+        </div>
+        <div class="summary-item">
+          <strong>Inflows (base)</strong>
+          <span id="sumIn">0.00</span>
+        </div>
+        <div class="summary-item">
+          <strong>Outflows (base)</strong>
+          <span id="sumOut">0.00</span>
+        </div>
+        <div class="summary-item">
+          <strong>Net Position</strong>
+          <span id="sumNet">0.00</span>
+        </div>
+      </div>
+
+      <!-- Transactions table -->
+      <h3 style="font-size:13px;margin-top:12px;">Captured Payments (Current Session)</h3>
+      <div class="scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Date</th>
+              <th>Dir</th>
+              <th>Amt</th>
+              <th>Cur</th>
+              <th>Channel</th>
+              <th>Chain</th>
+              <th>Tax Ctry</th>
+              <th>FX</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="txTableBody">
+            <tr><td colspan="10" class="muted" style="padding:8px;">No payments captured yet.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="margin-top:10px;">
+        <button class="btn-danger" id="clearAllBtn">Clear All</button>
+      </div>
+
+      <hr style="border:none;border-top:1px dashed #1f2937;margin:14px 0 10px;" />
+
+      <!-- Export section -->
+      <h3 style="font-size:13px;margin-top:0;">Export AcePi Payload JSON</h3>
+      <p class="muted">
+        This payload includes: <code>business_profile</code>, a default <code>tax_profile</code>,
+        a standard Ace chart of accounts, and all captured <code>transactions[]</code>.
+        Use it directly in AcePi.
+      </p>
+      <button class="btn-primary" id="downloadPayloadBtn">⬇ Download AcePi Payload JSON</button>
+      <button class="btn-secondary" id="copyPayloadBtn">📋 Copy to Clipboard</button>
+      <span class="status" id="exportStatus"></span>
+
+      <h3 style="font-size:13px;margin-top:12px;">JSON Preview (export payload)</h3>
+      <pre id="payloadPreview">(export a payload to preview…)</pre>
+    </section>
+  </main>
+
+  <script>
+    // ----------------------------
+    // Default tax profile & chart of accounts aligned with AcePi
+    // ----------------------------
+    const defaultTaxProfileNG = {
+      country: "NG",
+      vat_applicable: true,
+      vat_registered: true,
+      vat_rate: 0.075,
+      treat_sales_as_vat_inclusive: true,
+      withholding_tax_enabled: true,
+      default_wht_service_rate: 0.10,
+      default_wht_contract_rate: 0.05,
+      default_wht_rent_rate: 0.10,
+      input_vat_claimable: true
+    };
+
+    const defaultChartOfAccounts = [
+      { code: "1000", name: "Cash and Bank", type: "asset" },
+      { code: "1010", name: "On-chain Wallet - Base (USDC)", type: "asset" },
+      { code: "1011", name: "On-chain Wallet - Pi", type: "asset" },
+      { code: "2000", name: "Accounts Payable", type: "liability" },
+      { code: "3000", name: "Owner's Equity", type: "equity" },
+      { code: "4000", name: "Sales Revenue (Local)", type: "income" },
+      { code: "4010", name: "Sales Revenue (On-chain)", type: "income" },
+      { code: "4011", name: "Sales Revenue (Pi Network)", type: "income" },
+      { code: "5000", name: "Cost of Goods Sold", type: "expense" },
+      { code: "6001", name: "Office & Shop Expenses", type: "expense" },
+      { code: "6002", name: "Professional Fees Expense", type: "expense" },
+      { code: "6003", name: "Rent Expense", type: "expense" },
+      { code: "6005", name: "Network Fees (Gas)", type: "expense" },
+      { code: "9999", name: "Unclassified Transaction", type: "expense" }
+    ];
+
+    // ----------------------------
+    // State
+    // ----------------------------
+    let businessProfile = {
+      business_name: "",
+      industry: "",
+      country: "",
+      base_currency: "NGN"
+    };
+    let defaultTaxCountryCode = "NG";
+    let sessionTransactions = [];
+
+    // LocalStorage keys
+    const LS_KEY_PROFILE = "acepay_pi_profile";
+    const LS_KEY_TX = "acepay_pi_transactions";
+
+    // ----------------------------
+    // DOM elements
+    // ----------------------------
+    const bizNameEl = document.getElementById("bizName");
+    const bizIndustryEl = document.getElementById("bizIndustry");
+    const bizCountryEl = document.getElementById("bizCountry");
+    const baseCurrencyEl = document.getElementById("baseCurrency");
+    const defaultTaxCountryEl = document.getElementById("defaultTaxCountry");
+    const profilePresetEl = document.getElementById("profilePreset");
+    const profileStatusEl = document.getElementById("profileStatus");
+
+    const txDateEl = document.getElementById("txDate");
+    const txDirectionEl = document.getElementById("txDirection");
+    const txAmountEl = document.getElementById("txAmount");
+    const txCurrencyEl = document.getElementById("txCurrency");
+    const txDescriptionEl = document.getElementById("txDescription");
+    const txChannelEl = document.getElementById("txChannel");
+    const txChainEl = document.getElementById("txChain");
+    const txTaxCountryEl = document.getElementById("txTaxCountry");
+    const txCounterpartyEl = document.getElementById("txCounterparty");
+    const txIdEl = document.getElementById("txId");
+
+    const fxCurrencyEl = document.getElementById("fxCurrency");
+    const fxAmountEl = document.getElementById("fxAmount");
+    const fxRateEl = document.getElementById("fxRate");
+    const fxFeeEl = document.getElementById("fxFee");
+
+    const txStatusEl = document.getElementById("txStatus");
+    const txTableBodyEl = document.getElementById("txTableBody");
+
+    const sumTxCountEl = document.getElementById("sumTxCount");
+    const sumInEl = document.getElementById("sumIn");
+    const sumOutEl = document.getElementById("sumOut");
+    const sumNetEl = document.getElementById("sumNet");
+
+    const exportStatusEl = document.getElementById("exportStatus");
+    const payloadPreviewEl = document.getElementById("payloadPreview");
+
+    const applyPresetBtn = document.getElementById("applyPresetBtn");
+    const saveProfileBtn = document.getElementById("saveProfileBtn");
+    const addTxBtn = document.getElementById("addTxBtn");
+    const clearTxFormBtn = document.getElementById("clearTxFormBtn");
+    const loadSampleTxBtn = document.getElementById("loadSampleTxBtn");
+    const clearAllBtn = document.getElementById("clearAllBtn");
+    const downloadPayloadBtn = document.getElementById("downloadPayloadBtn");
+    const copyPayloadBtn = document.getElementById("copyPayloadBtn");
+
+    // ----------------------------
+    // LocalStorage helpers
+    // ----------------------------
+    function loadFromStorage() {
+      try {
+        const p = localStorage.getItem(LS_KEY_PROFILE);
+        if (p) {
+          const parsed = JSON.parse(p);
+          Object.assign(businessProfile, parsed);
+        }
+      } catch (e) {
+        console.warn("Profile LS parse error", e);
+      }
+      try {
+        const t = localStorage.getItem(LS_KEY_TX);
+        if (t) {
+          const parsedTx = JSON.parse(t);
+          if (Array.isArray(parsedTx)) sessionTransactions = parsedTx;
+        }
+      } catch (e) {
+        console.warn("Tx LS parse error", e);
+      }
+    }
+
+    function saveProfileToStorage() {
+      try {
+        localStorage.setItem(LS_KEY_PROFILE, JSON.stringify(businessProfile));
+      } catch (e) {
+        console.warn("Profile LS save error", e);
+      }
+    }
+
+    function saveTxToStorage() {
+      try {
+        localStorage.setItem(LS_KEY_TX, JSON.stringify(sessionTransactions));
+      } catch (e) {
+        console.warn("Tx LS save error", e);
+      }
+    }
+
+    // ----------------------------
+    // UI update
+    // ----------------------------
+    function renderProfileToForm() {
+      bizNameEl.value = businessProfile.business_name || "";
+      bizIndustryEl.value = businessProfile.industry || "";
+      bizCountryEl.value = businessProfile.country || "";
+      baseCurrencyEl.value = businessProfile.base_currency || "NGN";
+      defaultTaxCountryEl.value = defaultTaxCountryCode || "NG";
+    }
+
+    function renderTransactionsTable() {
+      if (!sessionTransactions.length) {
+        txTableBodyEl.innerHTML = '<tr><td colspan="10" class="muted" style="padding:8px;">No payments captured yet.</td></tr>';
+        updateSummary();
+        return;
+      }
+      txTableBodyEl.innerHTML = "";
+      sessionTransactions.forEach((tx, index) => {
+        const tr = document.createElement("tr");
+
+        const fxLabel = tx.fx_currency
+          ? `${tx.fx_amount || ""} ${tx.fx_currency} @ ${tx.fx_rate_to_base || ""}`
+          : "";
+
+        tr.innerHTML = `
+          <td>${index + 1}</td>
+          <td>${tx.date || ""}</td>
+          <td><span class="badge ${tx.direction === "in" ? "in" : "out"}">${tx.direction}</span></td>
+          <td>${Number(tx.amount || 0).toFixed(2)}</td>
+          <td>${tx.currency || ""}</td>
+          <td>${tx.payment_channel || ""}</td>
+          <td>${tx.chain || ""}</td>
+          <td>${tx.tax_country || ""}</td>
+          <td>${fxLabel}</td>
+          <td><button class="btn-ghost" data-index="${index}" style="padding:2px 6px;font-size:10px;">✕</button></td>
+        `;
+        txTableBodyEl.appendChild(tr);
+      });
+
+      // attach delete handlers
+      txTableBodyEl.querySelectorAll("button[data-index]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const idx = parseInt(btn.getAttribute("data-index"), 10);
+          if (!isNaN(idx)) {
+            sessionTransactions.splice(idx, 1);
+            saveTxToStorage();
+            renderTransactionsTable();
+          }
+        });
+      });
+
+      updateSummary();
+    }
+
+    function updateSummary() {
+      let count = sessionTransactions.length;
+      let sumIn = 0;
+      let sumOut = 0;
+      sessionTransactions.forEach(tx => {
+        const amt = Number(tx.amount || 0);
+        if (tx.direction === "in") sumIn += amt;
+        else sumOut += amt;
+      });
+      const net = sumIn - sumOut;
+
+      sumTxCountEl.textContent = String(count);
+      sumInEl.textContent = sumIn.toFixed(2);
+      sumOutEl.textContent = sumOut.toFixed(2);
+      sumNetEl.textContent = net.toFixed(2);
+    }
+
+    function buildAcePiPayload() {
+      const bp = {
+        business_name: businessProfile.business_name || "AcePay Pi Merchant",
+        industry: businessProfile.industry || "Hybrid commerce",
+        country: businessProfile.country || "Nigeria",
+        base_currency: businessProfile.base_currency || "NGN"
+      };
+      const taxCountryCode = (defaultTaxCountryEl.value || defaultTaxCountryCode || "NG").toUpperCase();
+
+      const tax_profile = Object.assign({}, defaultTaxProfileNG, { country: taxCountryCode });
+
+      // transactions are already in a structure AcePi can understand
+      const transactions = sessionTransactions.map(tx => {
+        return Object.assign({}, tx);
+      });
+
+      return {
+        business_profile: bp,
+        tax_profile: tax_profile,
+        chart_of_accounts: defaultChartOfAccounts,
+        transactions: transactions
+      };
+    }
+
+    function updatePayloadPreview() {
+      if (!sessionTransactions.length) {
+        payloadPreviewEl.textContent = "(export a payload to preview…)";
+        return;
+      }
+      const payload = buildAcePiPayload();
+      payloadPreviewEl.textContent = JSON.stringify(payload, null, 2);
+    }
+
+    // ----------------------------
+    // Event handlers
+    // ----------------------------
+    applyPresetBtn.addEventListener("click", () => {
+      const val = profilePresetEl.value;
+      if (!val) return;
+      if (val === "ng-retail") {
+        businessProfile.business_name = "Ace Hybrid Retail & Web3 Hub";
+        businessProfile.industry = "Retail & Digital Services";
+        businessProfile.country = "Nigeria";
+        businessProfile.base_currency = "NGN";
+        defaultTaxCountryCode = "NG";
+      } else if (val === "us-saas") {
+        businessProfile.business_name = "Ace Digital Intelligence Inc.";
+        businessProfile.industry = "SaaS & Information Services";
+        businessProfile.country = "United States";
+        businessProfile.base_currency = "USD";
+        defaultTaxCountryCode = "US";
+      } else if (val === "uk-consult") {
+        businessProfile.business_name = "Ace Insights Consulting Ltd";
+        businessProfile.industry = "Consulting & Advisory";
+        businessProfile.country = "United Kingdom";
+        businessProfile.base_currency = "GBP";
+        defaultTaxCountryCode = "UK";
+      }
+      renderProfileToForm();
+      profileStatusEl.textContent = "Preset applied. Click Save Profile to persist.";
+      setTimeout(() => { profileStatusEl.textContent = ""; }, 3000);
+    });
+
+    saveProfileBtn.addEventListener("click", () => {
+      businessProfile.business_name = bizNameEl.value.trim();
+      businessProfile.industry = bizIndustryEl.value.trim();
+      businessProfile.country = bizCountryEl.value.trim();
+      businessProfile.base_currency = baseCurrencyEl.value.trim() || "NGN";
+      defaultTaxCountryCode = defaultTaxCountryEl.value.trim() || "NG";
+      saveProfileToStorage();
+      profileStatusEl.textContent = "Profile saved.";
+      setTimeout(() => { profileStatusEl.textContent = ""; }, 3000);
+    });
+
+    addTxBtn.addEventListener("click", () => {
+      const date = txDateEl.value || null;
+      const direction = txDirectionEl.value === "out" ? "out" : "in";
+      const amount = Number(txAmountEl.value || 0);
+      const currency = txCurrencyEl.value.trim() || (businessProfile.base_currency || "NGN");
+      const description = txDescriptionEl.value.trim();
+      const payment_channel = txChannelEl.value || "";
+      const chain = txChainEl.value || "";
+      const tax_country = (txTaxCountryEl.value || defaultTaxCountryEl.value || defaultTaxCountryCode || "NG").toUpperCase();
+      const counterparty_type = txCounterpartyEl.value || "";
+
+      if (!amount || !description) {
+        txStatusEl.textContent = "Please enter at least amount and description.";
+        return;
+      }
+
+      const fx_currency = fxCurrencyEl.value.trim();
+      const fx_amount = fxAmountEl.value ? Number(fxAmountEl.value) : null;
+      const fx_rate = fxRateEl.value ? Number(fxRateEl.value) : null;
+      const fx_fee = fxFeeEl.value ? Number(fxFeeEl.value) : null;
+
+      const baseTx = {
+        id: txIdEl.value.trim() || "TX-" + (sessionTransactions.length + 1),
+        date: date,
+        amount: amount,
+        currency: currency,
+        description: description,
+        direction: direction,
+        counterparty_type: counterparty_type,
+        payment_channel: payment_channel || "other",
+        tax_country: tax_country
+      };
+
+      if (chain) baseTx.chain = chain;
+
+      if (fx_currency || fx_amount || fx_rate || fx_fee) {
+        baseTx.fx_currency = fx_currency || currency;
+        if (fx_amount != null && !isNaN(fx_amount)) baseTx.fx_amount = fx_amount;
+        if (fx_rate != null && !isNaN(fx_rate)) baseTx.fx_rate_to_base = fx_rate;
+        if (fx_fee != null && !isNaN(fx_fee)) baseTx.fx_fee = fx_fee;
+      }
+
+      sessionTransactions.push(baseTx);
+      saveTxToStorage();
+      renderTransactionsTable();
+      updatePayloadPreview();
+
+      txStatusEl.textContent = "Payment added to session.";
+      setTimeout(() => { txStatusEl.textContent = ""; }, 2500);
+
+      // Optional: clear amount/description for fast next entry
+      txAmountEl.value = "";
+      txDescriptionEl.value = "";
+      txIdEl.value = "";
+    });
+
+    clearTxFormBtn.addEventListener("click", () => {
+      txDateEl.value = "";
+      txDirectionEl.value = "in";
+      txAmountEl.value = "";
+      txCurrencyEl.value = "";
+      txDescriptionEl.value = "";
+      txChannelEl.value = "";
+      txChainEl.value = "";
+      txTaxCountryEl.value = "";
+      txCounterpartyEl.value = "";
+      txIdEl.value = "";
+      fxCurrencyEl.value = "";
+      fxAmountEl.value = "";
+      fxRateEl.value = "";
+      fxFeeEl.value = "";
+      txStatusEl.textContent = "";
+    });
+
+    loadSampleTxBtn.addEventListener("click", () => {
+      // small sample set to demonstrate different rails
+      const sample = [
+        {
+          id: "PI-DEMO-001",
+          date: new Date().toISOString().slice(0,10),
+          amount: 60000,
+          currency: "NGN",
+          description: "In-store Pi payment for groceries",
+          direction: "in",
+          counterparty_type: "customer",
+          payment_channel: "pi",
+          chain: "pi",
+          tax_country: (defaultTaxCountryEl.value || "NG").toUpperCase(),
+          fx_currency: "PI",
+          fx_amount: 60,
+          fx_rate_to_base: 1000,
+          fx_fee: 0
+        },
+        {
+          id: "BINANCE-DEMO-001",
+          date: new Date().toISOString().slice(0,10),
+          amount: 750000,
+          currency: "NGN",
+          description: "USDT deposit from Binance",
+          direction: "in",
+          counterparty_type: "exchange",
+          payment_channel: "binance",
+          chain: "bsc",
+          tax_country: (defaultTaxCountryEl.value || "NG").toUpperCase(),
+          fx_currency: "USDT",
+          fx_amount: 500,
+          fx_rate_to_base: 1500,
+          fx_fee: 0
+        },
+        {
+          id: "AMAZON-DEMO-001",
+          date: new Date().toISOString().slice(0,10),
+          amount: 320000,
+          currency: "NGN",
+          description: "Electronics for office purchased on Amazon",
+          direction: "out",
+          counterparty_type: "merchant",
+          payment_channel: "amazon",
+          tax_country: "US",
+          fx_currency: "USD",
+          fx_amount: 200,
+          fx_rate_to_base: 1600,
+          fx_fee: 0
+        }
+      ];
+      sessionTransactions = sessionTransactions.concat(sample);
+      saveTxToStorage();
+      renderTransactionsTable();
+      updatePayloadPreview();
+      txStatusEl.textContent = "Sample transactions added.";
+      setTimeout(() => { txStatusEl.textContent = ""; }, 2500);
+    });
+
+    clearAllBtn.addEventListener("click", () => {
+      if (!sessionTransactions.length) return;
+      if (!confirm("Clear all captured payments in this session?")) return;
+      sessionTransactions = [];
+      saveTxToStorage();
+      renderTransactionsTable();
+      updatePayloadPreview();
+      exportStatusEl.textContent = "";
+    });
+
+    downloadPayloadBtn.addEventListener("click", () => {
+      if (!sessionTransactions.length) {
+        exportStatusEl.textContent = "Capture at least one payment first.";
+        return;
+      }
+      const payload = buildAcePiPayload();
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      const ts = new Date().toISOString().replace(/[-:T.Z]/g, "").slice(0, 14);
+      a.href = url;
+      a.download = `acepaypi-acepi-payload-${ts}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      exportStatusEl.textContent = "AcePi payload downloaded. Use it in AcePi / ACA / Ace Insights.";
+      updatePayloadPreview();
+    });
+
+    copyPayloadBtn.addEventListener("click", async () => {
+      if (!sessionTransactions.length) {
+        exportStatusEl.textContent = "Capture at least one payment first.";
+        return;
+      }
+      const payload = buildAcePiPayload();
+      const text = JSON.stringify(payload, null, 2);
+      try {
+        await navigator.clipboard.writeText(text);
+        exportStatusEl.textContent = "AcePi payload copied to clipboard.";
+      } catch (e) {
+        exportStatusEl.textContent = "Could not copy. You can manually copy from the preview below.";
+      }
+      updatePayloadPreview();
+    });
+
+    // ----------------------------
+    // Init
+    // ----------------------------
+    (function init() {
+      loadFromStorage();
+      renderProfileToForm();
+      renderTransactionsTable();
+      updatePayloadPreview();
+    })();
+  </script>
+</body>
+</html>
